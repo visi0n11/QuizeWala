@@ -1,0 +1,6 @@
+{
+  "name": "MindSprint Quiz Platform",
+  "description": "Interactive online quiz platform featuring multi-mode trivia challenges, speed sprints, life-based survival, custom quiz authoring, and AI-powered quiz generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
