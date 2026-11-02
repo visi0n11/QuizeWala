@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,7 +15,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(express.json({ limit: '2mb' }));
 
-// Initialize GoogleGenAI SDK
+// Initialize GoogleGenAI SDK in JavaScript
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
   httpOptions: {
@@ -25,14 +25,13 @@ const ai = new GoogleGenAI({
   },
 });
 
-// API endpoint to generate quiz using Gemini
-app.post('/api/quiz/generate', async (req: Request, res: Response): Promise<void> => {
+// API endpoint to generate quiz using Gemini AI
+app.post('/api/quiz/generate', async (req, res) => {
   try {
     const { topic, difficulty = 'Medium', count = 5, contextText } = req.body;
 
     if (!topic && !contextText) {
-      res.status(400).json({ error: 'Topic or reference content is required.' });
-      return;
+      return res.status(400).json({ error: 'Topic or reference content is required.' });
     }
 
     const questionCount = Math.min(Math.max(Number(count) || 5, 3), 15);
@@ -63,7 +62,7 @@ Requirements for each question:
           properties: {
             title: { type: Type.STRING, description: 'An engaging quiz title' },
             description: { type: Type.STRING, description: 'A short 1-2 sentence overview of the quiz' },
-            category: { type: Type.STRING, description: 'A suitable category, e.g. Science, Tech, History, Arts, General' },
+            category: { type: Type.STRING, description: 'A suitable category, e.g. JavaScript, Science, Tech, History, Arts, General' },
             questions: {
               type: Type.ARRAY,
               items: {
@@ -96,12 +95,12 @@ Requirements for each question:
     const parsedData = JSON.parse(text);
 
     // Format questions with unique IDs
-    const formattedQuestions = (parsedData.questions || []).map((q: any, idx: number) => ({
+    const formattedQuestions = (parsedData.questions || []).map((q, idx) => ({
       id: `ai-q-${Date.now()}-${idx}`,
       question: q.question,
       options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ['Option A', 'Option B', 'Option C', 'Option D'],
       correctIndex: typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < 4 ? q.correctIndex : 0,
-      explanation: q.explanation || 'The selected option is the correct verified fact.',
+      explanation: q.explanation || 'The selected option is the verified fact.',
       hint: q.hint || 'Carefully evaluate each option by process of elimination.',
     }));
 
@@ -119,7 +118,7 @@ Requirements for each question:
     };
 
     res.json({ quiz: generatedQuiz });
-  } catch (err: any) {
+  } catch (err) {
     console.error('Quiz generation error:', err);
     res.status(500).json({
       error: err.message || 'Failed to generate quiz. Please try again with a different topic.',
@@ -144,7 +143,7 @@ async function startServer() {
   }
 
   app.listen(PORT, () => {
-    console.log(`MindSprint server running on http://localhost:${PORT}`);
+    console.log(`MindSprint JavaScript server running on http://localhost:${PORT}`);
   });
 }
 

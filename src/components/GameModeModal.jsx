@@ -1,32 +1,13 @@
 import React, { useState } from 'react';
 import { X, BookOpen, Zap, Shield, Play } from 'lucide-react';
-import { Quiz, GameMode } from '../types/quiz';
-import { sound } from '../utils/audio';
+import { sound } from '../utils/audio.js';
 
-interface GameModeModalProps {
-  quiz: Quiz;
-  isOpen: boolean;
-  onClose: () => void;
-  onStart: (quiz: Quiz, mode: GameMode) => void;
-}
-
-export const GameModeModal: React.FC<GameModeModalProps> = ({
-  quiz,
-  isOpen,
-  onClose,
-  onStart,
-}) => {
-  const [selectedMode, setSelectedMode] = useState<GameMode>('classic');
+export function GameModeModal({ quiz, isOpen, onClose, onStart }) {
+  const [selectedMode, setSelectedMode] = useState('classic');
 
   if (!isOpen) return null;
 
-  const modes: {
-    id: GameMode;
-    title: string;
-    description: string;
-    icon: React.ReactNode;
-    tag: string;
-  }[] = [
+  const modes = [
     {
       id: 'classic',
       title: 'Classic Study',
@@ -68,7 +49,7 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
               sound.playClick();
               onClose();
             }}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -143,4 +124,4 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
       </div>
     </div>
   );
-};
+}

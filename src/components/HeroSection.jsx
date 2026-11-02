@@ -1,19 +1,8 @@
 import React from 'react';
 import { Sparkles, Play, Search, Compass, BookOpen } from 'lucide-react';
-import { sound } from '../utils/audio';
+import { sound } from '../utils/audio.js';
 
-interface HeroSectionProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  selectedCategory: string;
-  onSelectCategory: (category: string) => void;
-  categories: string[];
-  onStartDailyQuiz: () => void;
-  onOpenAiGenerator: () => void;
-  totalQuizzesCount: number;
-}
-
-export const HeroSection: React.FC<HeroSectionProps> = ({
+export function HeroSection({
   searchQuery,
   onSearchChange,
   selectedCategory,
@@ -22,18 +11,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onStartDailyQuiz,
   onOpenAiGenerator,
   totalQuizzesCount,
-}) => {
+}) {
   return (
     <section className="relative overflow-hidden pt-8 pb-12 sm:pt-12 sm:pb-16 border-b border-slate-200 dark:border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Heading, Meta, CTAs */}
           <div className="lg:col-span-7 space-y-6">
-            {/* Clean unboxed metadata with typographic separators (Anti-slop zero-pill rule) */}
+            {/* Clean unboxed metadata with typographic separators */}
             <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-              <span className="text-blue-600 dark:text-blue-400 font-semibold">MindSprint Platform</span>
+              <span className="text-blue-600 dark:text-blue-400 font-semibold">MindSprint JavaScript Platform</span>
               <span aria-hidden="true">·</span>
-              <span>Daily Knowledge Engine</span>
+              <span>Full-Stack Knowledge Engine</span>
               <span aria-hidden="true">·</span>
               <span className="tabular-nums">{totalQuizzesCount} Curated Challenges</span>
             </div>
@@ -43,7 +32,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </h1>
 
             <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
-              Master science, technology, world history, and literature through timed speed sprints, sudden-death survival, and instant AI-generated question decks.
+              Master JavaScript fundamentals, computer science, world history, and quantum physics through timed speed sprints, sudden-death survival, and instant AI-generated question decks.
             </p>
 
             {/* CTAs */}
@@ -71,7 +60,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </button>
             </div>
 
-            {/* Trust points / Proof adjacency */}
+            {/* Trust points */}
             <div className="flex flex-wrap items-center gap-6 pt-4 text-xs text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-2">
                 <Compass className="w-4 h-4 text-blue-500 shrink-0" />
@@ -99,13 +88,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent flex flex-col justify-end p-6">
                 <div className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-1">
-                  Today's Featured Focus
+                  Featured Challenge Deck
                 </div>
                 <div className="text-lg font-bold text-white mb-1">
-                  Cosmos &amp; Quantum Frontiers
+                  JavaScript Core &amp; Modern ES6+ Mastery
                 </div>
                 <div className="text-xs text-slate-300">
-                  5 thought-provoking questions on black holes, particle physics, and spacetime.
+                  5 rigorous questions on event loop microtasks, lexical closures, prototypes, and async promises.
                 </div>
               </div>
             </div>
@@ -127,7 +116,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               />
             </div>
 
-            {/* Interactive Category Segmented Tabs (Functional filter buttons per §1.A) */}
+            {/* Interactive Category Tabs */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               {categories.map(cat => {
                 const isActive = selectedCategory === cat;
@@ -154,4 +143,4 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       </div>
     </section>
   );
-};
+}

@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Navbar } from './components/Navbar';
-import { HeroSection } from './components/HeroSection';
-import { QuizCard } from './components/QuizCard';
-import { GameModeModal } from './components/GameModeModal';
-import { ActiveQuiz } from './components/ActiveQuiz';
-import { QuizSummary } from './components/QuizSummary';
-import { CertificateModal } from './components/CertificateModal';
-import { AiQuizModal } from './components/AiQuizModal';
-import { QuizCreatorModal } from './components/QuizCreatorModal';
-import { StatsView } from './components/StatsView';
+import { Navbar } from './components/Navbar.jsx';
+import { HeroSection } from './components/HeroSection.jsx';
+import { QuizCard } from './components/QuizCard.jsx';
+import { GameModeModal } from './components/GameModeModal.jsx';
+import { ActiveQuiz } from './components/ActiveQuiz.jsx';
+import { QuizSummary } from './components/QuizSummary.jsx';
+import { CertificateModal } from './components/CertificateModal.jsx';
+import { AiQuizModal } from './components/AiQuizModal.jsx';
+import { QuizCreatorModal } from './components/QuizCreatorModal.jsx';
+import { StatsView } from './components/StatsView.jsx';
 
-import { Quiz, GameMode, QuizAttempt, UserProfile } from './types/quiz';
-import { PREBUILT_QUIZZES } from './data/prebuiltQuizzes';
+import { PREBUILT_QUIZZES } from './data/prebuiltQuizzes.js';
 import {
   getStoredProfile,
   saveProfile,
@@ -19,24 +18,24 @@ import {
   getCustomQuizzes,
   saveCustomQuiz,
   deleteCustomQuiz,
-} from './utils/storage';
-import { sound } from './utils/audio';
+} from './utils/storage.js';
+import { sound } from './utils/audio.js';
 
 export default function App() {
-  const [profile, setProfile] = useState<UserProfile>(getStoredProfile);
-  const [customQuizzes, setCustomQuizzes] = useState<Quiz[]>(getCustomQuizzes);
+  const [profile, setProfile] = useState(getStoredProfile);
+  const [customQuizzes, setCustomQuizzes] = useState(getCustomQuizzes);
 
   // Views & navigation
-  const [currentView, setCurrentView] = useState<'catalog' | 'stats'>('catalog');
+  const [currentView, setCurrentView] = useState('catalog');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   // Active quiz session states
-  const [selectedQuizForMode, setSelectedQuizForMode] = useState<Quiz | null>(null);
-  const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
-  const [activeMode, setActiveMode] = useState<GameMode>('classic');
-  const [completedAttempt, setCompletedAttempt] = useState<QuizAttempt | null>(null);
-  const [newBadges, setNewBadges] = useState<string[]>([]);
+  const [selectedQuizForMode, setSelectedQuizForMode] = useState(null);
+  const [activeQuiz, setActiveQuiz] = useState(null);
+  const [activeMode, setActiveMode] = useState('classic');
+  const [completedAttempt, setCompletedAttempt] = useState(null);
+  const [newBadges, setNewBadges] = useState([]);
 
   // Modals
   const [showCertificateModal, setShowCertificateModal] = useState(false);
@@ -78,7 +77,7 @@ export default function App() {
 
   // Unique categories for filtering
   const categories = useMemo(() => {
-    const set = new Set<string>();
+    const set = new Set();
     set.add('All');
     allQuizzes.forEach(q => set.add(q.category));
     return Array.from(set);
@@ -99,37 +98,32 @@ export default function App() {
     });
   }, [allQuizzes, selectedCategory, searchQuery]);
 
-  // Launch modal to select mode
-  const handleSelectQuiz = (quiz: Quiz) => {
+  const handleSelectQuiz = quiz => {
     setSelectedQuizForMode(quiz);
   };
 
-  // Start quiz in chosen mode
-  const handleStartGame = (quiz: Quiz, mode: GameMode) => {
+  const handleStartGame = (quiz, mode) => {
     setSelectedQuizForMode(null);
     setCompletedAttempt(null);
     setActiveQuiz(quiz);
     setActiveMode(mode);
   };
 
-  // Quick Daily Challenge launch
   const handleStartDailyChallenge = () => {
     const dailyQuiz = allQuizzes.find(q => q.id === 'quiz-daily-brain-sprint') || allQuizzes[0];
     handleStartGame(dailyQuiz, 'sprint');
   };
 
-  // Finish quiz callback
-  const handleFinishQuiz = (attempt: QuizAttempt) => {
+  const handleFinishQuiz = attempt => {
     const { updatedProfile, newlyEarnedBadges } = recordQuizAttempt(attempt);
     setProfile(updatedProfile);
     setNewBadges(newlyEarnedBadges);
     setCompletedAttempt(attempt);
   };
 
-  // Retake missed questions drill
-  const handleRetakeMissed = (missedQuestions: Quiz['questions']) => {
+  const handleRetakeMissed = missedQuestions => {
     if (!activeQuiz) return;
-    const reviewQuiz: Quiz = {
+    const reviewQuiz = {
       ...activeQuiz,
       id: `review-${activeQuiz.id}-${Date.now()}`,
       title: `Review Drill: ${activeQuiz.title}`,
@@ -140,8 +134,7 @@ export default function App() {
     handleStartGame(reviewQuiz, 'classic');
   };
 
-  // Custom Quiz Created
-  const handleSaveCustomQuiz = (quiz: Quiz, startImmediately: boolean) => {
+  const handleSaveCustomQuiz = (quiz, startImmediately) => {
     saveCustomQuiz(quiz);
     setCustomQuizzes(getCustomQuizzes());
     if (startImmediately) {
@@ -149,13 +142,11 @@ export default function App() {
     }
   };
 
-  // Delete Custom Quiz
-  const handleDeleteCustomQuiz = (quizId: string) => {
+  const handleDeleteCustomQuiz = quizId => {
     deleteCustomQuiz(quizId);
     setCustomQuizzes(getCustomQuizzes());
   };
 
-  // Return to Catalog
   const handleBackToCatalog = () => {
     setActiveQuiz(null);
     setCompletedAttempt(null);
@@ -164,7 +155,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors selection:bg-blue-600 selection:text-white">
-      {/* If active in a quiz and NOT finished, render ActiveQuiz full screen */}
+      {/* If active in a quiz and NOT finished, render ActiveQuiz */}
       {activeQuiz && !completedAttempt && (
         <ActiveQuiz
           quiz={activeQuiz}
@@ -291,14 +282,14 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <span className="font-bold text-slate-800 dark:text-slate-200">MindSprint</span>
                 <span aria-hidden="true">·</span>
-                <span>Interactive Knowledge &amp; Trivia Arena</span>
+                <span>Interactive JavaScript Knowledge &amp; Trivia Arena</span>
               </div>
               <div className="flex items-center gap-4">
                 <span>Adaptive Learning</span>
                 <span aria-hidden="true">·</span>
-                <span>AI-Grounding Deck Generation</span>
+                <span>AI Deck Generation</span>
                 <span aria-hidden="true">·</span>
-                <span>Verified Credentials</span>
+                <span>Verifiable Credentials</span>
               </div>
             </div>
           </footer>

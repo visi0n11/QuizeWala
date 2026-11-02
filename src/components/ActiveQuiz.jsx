@@ -17,35 +17,25 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { Quiz, GameMode, QuizAttempt } from '../types/quiz';
-import { sound } from '../utils/audio';
+import { sound } from '../utils/audio.js';
 
-interface ActiveQuizProps {
-  quiz: Quiz;
-  mode: GameMode;
-  onFinish: (attempt: QuizAttempt) => void;
-  onExit: () => void;
-  soundEnabled: boolean;
-  onToggleSound: () => void;
-}
-
-export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
+export function ActiveQuiz({
   quiz,
   mode,
   onFinish,
   onExit,
   soundEnabled,
   onToggleSound,
-}) => {
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
-  const [eliminatedOptions, setEliminatedOptions] = useState<Record<string, number[]>>({});
-  const [revealedHints, setRevealedHints] = useState<Record<string, boolean>>({});
-  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
+  const [userAnswers, setUserAnswers] = useState({});
+  const [eliminatedOptions, setEliminatedOptions] = useState({});
+  const [revealedHints, setRevealedHints] = useState({});
+  const [bookmarkedIds, setBookmarkedIds] = useState([]);
 
-  // Lifelines availability
+  // Lifelines
   const [hasUsedFiftyFifty, setHasUsedFiftyFifty] = useState(false);
   const [hasUsedHint, setHasUsedHint] = useState(false);
   const [hasUsedFreeze, setHasUsedFreeze] = useState(false);
@@ -58,26 +48,25 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
 
-  // Question navigation drawer toggle
+  // Drawer
   const [showDrawer, setShowDrawer] = useState(false);
 
-  // Time tracking
-  const startTimeRef = useRef<number>(Date.now());
+  // Timer
+  const startTimeRef = useRef(Date.now());
   const initialTimeForMode = mode === 'sprint' ? 20 : mode === 'survival' ? 25 : 60;
-  const [timeRemaining, setTimeRemaining] = useState<number>(initialTimeForMode);
+  const [timeRemaining, setTimeRemaining] = useState(initialTimeForMode);
 
   const currentQuestion = quiz.questions[currentIndex];
   const isLastQuestion = currentIndex === quiz.questions.length - 1;
 
-  // Complete Quiz handler
   const finalizeQuiz = useCallback(
-    (finalAnswers: Record<string, number>, finalCorrect: number, finalWrong: number, finalScore: number, finalMaxCombo: number) => {
+    (finalAnswers, finalCorrect, finalWrong, finalScore, finalMaxCombo) => {
       const timeSpentSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
       const total = quiz.questions.length;
       const accuracy = total > 0 ? Math.round((finalCorrect / total) * 100) : 0;
       const xpEarned = Math.round(finalScore / 5) + finalCorrect * 20 + (mode === 'sprint' ? 50 : 0);
 
-      const attempt: QuizAttempt = {
+      const attempt = {
         id: `attempt-${Date.now()}`,
         quizId: quiz.id,
         quizTitle: quiz.title,
@@ -100,30 +89,7 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
     [quiz, mode, onFinish]
   );
 
-  // Timer countdown hook
-  useEffect(() => {
-    if (isAnswered) return;
-
-    const timer = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          // Auto timeout for current question
-          handleTimeOut();
-          return 0;
-        }
-        if (prev <= 4) {
-          // Subtle tick for critical urgency
-          sound.playClick();
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [currentIndex, isAnswered]);
-
-  const handleTimeOut = () => {
+  const handleTimeOut = useCallback(() => {
     if (isAnswered) return;
     setIsAnswered(true);
     setSelectedOption(-1);
@@ -143,10 +109,29 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
         }, 1200);
       }
     }
-  };
+  }, [isAnswered, userAnswers, currentQuestion.id, mode, lives, finalizeQuiz, correctCount, wrongCount, score, maxCombo]);
 
-  // Option selection handler
-  const handleSelectOption = (index: number) => {
+  useEffect(() => {
+    if (isAnswered) return;
+
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleTimeOut();
+          return 0;
+        }
+        if (prev <= 4) {
+          sound.playClick();
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [currentIndex, isAnswered, handleTimeOut]);
+
+  const handleSelectOption = index => {
     if (isAnswered) return;
     const isEliminated = (eliminatedOptions[currentQuestion.id] || []).includes(index);
     if (isEliminated) return;
@@ -169,7 +154,6 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
         sound.playStreak(newCombo);
       }
 
-      // Points: 100 base + remaining time bonus + combo multiplier
       const multiplier = newCombo >= 5 ? 2.5 : newCombo >= 3 ? 1.8 : 1.0;
       const pointsAdded = Math.round((100 + timeRemaining * 5) * multiplier);
       setScore(s => s + pointsAdded);
@@ -192,8 +176,7 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
     }
   };
 
-  // Move to next question or finalize
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     sound.playClick();
     if (isLastQuestion) {
       finalizeQuiz(userAnswers, correctCount, wrongCount, score, maxCombo);
@@ -203,16 +186,14 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
       setIsAnswered(false);
       setTimeRemaining(initialTimeForMode);
     }
-  };
+  }, [isLastQuestion, finalizeQuiz, userAnswers, correctCount, wrongCount, score, maxCombo, initialTimeForMode]);
 
-  // Lifeline: 50:50
   const handleFiftyFifty = () => {
     if (hasUsedFiftyFifty || isAnswered) return;
     sound.playLifeline();
     setHasUsedFiftyFifty(true);
 
     const wrongIndices = [0, 1, 2, 3].filter(idx => idx !== currentQuestion.correctIndex);
-    // Shuffle and pick 2 to eliminate
     const shuffled = wrongIndices.sort(() => 0.5 - Math.random());
     const toEliminate = shuffled.slice(0, 2);
 
@@ -222,7 +203,6 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
     }));
   };
 
-  // Lifeline: Reveal Hint
   const handleRevealHint = () => {
     if (hasUsedHint || isAnswered || !currentQuestion.hint) return;
     sound.playLifeline();
@@ -233,7 +213,6 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
     }));
   };
 
-  // Lifeline: Time Freeze / Bonus Time
   const handleFreezeTime = () => {
     if (hasUsedFreeze || isAnswered) return;
     sound.playLifeline();
@@ -241,17 +220,15 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
     setTimeRemaining(prev => prev + 15);
   };
 
-  // Bookmark toggle
-  const toggleBookmark = (qId: string) => {
+  const toggleBookmark = qId => {
     sound.playClick();
     setBookmarkedIds(prev =>
       prev.includes(qId) ? prev.filter(id => id !== qId) : [...prev, qId]
     );
   };
 
-  // Keyboard shortcut listener
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = e => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       if (!isAnswered) {
@@ -282,7 +259,6 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
       {/* Top HUD Bar */}
       <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          {/* Back & Title */}
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => {
@@ -305,9 +281,7 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
             </div>
           </div>
 
-          {/* Center: Timer / Lives / Combos */}
           <div className="flex items-center gap-3">
-            {/* Lives indicator (Survival mode) */}
             {mode === 'survival' && (
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400">
                 <Heart className="w-4 h-4 fill-current animate-pulse" />
@@ -315,7 +289,6 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
               </div>
             )}
 
-            {/* Combo Streak Multiplier */}
             {combo >= 2 && (
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 text-amber-600 dark:text-amber-400 animate-bounce">
                 <Flame className="w-4 h-4 fill-current" />
@@ -325,7 +298,6 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
               </div>
             )}
 
-            {/* Timer countdown dial */}
             <div
               className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-bold font-mono tabular-nums transition-colors ${
                 timeRemaining <= 5
@@ -338,7 +310,6 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
             </div>
           </div>
 
-          {/* Right: Score, Drawer & Sound */}
           <div className="flex items-center gap-2">
             <div className="text-right hidden sm:block">
               <span className="text-[10px] uppercase font-semibold text-slate-400 block">Score</span>
@@ -376,7 +347,6 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
           </div>
         </div>
 
-        {/* Linear progress bar */}
         <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5">
           <div
             className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 transition-all duration-300"
@@ -388,7 +358,7 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
       {/* Main Question Stage */}
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-8 flex flex-col justify-between">
         <div className="space-y-6">
-          {/* Lifeline Buttons */}
+          {/* Lifelines */}
           <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 text-xs">
             <span className="font-semibold text-slate-500 dark:text-slate-400">Available Lifelines:</span>
             <div className="flex items-center gap-2">
@@ -436,12 +406,11 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
             </div>
           </div>
 
-          {/* Hint alert callout if activated */}
           {isHintActive && currentQuestion.hint && (
             <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 flex items-start gap-3 animate-fade-in">
               <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="text-xs leading-relaxed">
-                <span className="font-bold block mb-0.5">Helpful Hint:</span>
+                <span className="font-bold block mb-0.5">Helpful Clue:</span>
                 {currentQuestion.hint}
               </div>
             </div>
@@ -452,7 +421,7 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
             <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
               {quiz.category} · Question #{currentIndex + 1}
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug whitespace-pre-line">
               {currentQuestion.question}
             </h2>
           </div>
@@ -507,19 +476,19 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
             })}
           </div>
 
-          {/* Explanation Box (Visible once answered) */}
+          {/* Explanation Box */}
           {isAnswered && (
             <div className="p-4 sm:p-5 rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/70 dark:bg-blue-950/30 text-slate-800 dark:text-slate-200 space-y-2 animate-fade-in">
               <div className="flex items-center gap-2 text-xs font-bold text-blue-700 dark:text-blue-300">
                 <HelpCircle className="w-4 h-4" />
-                <span>Fact &amp; Pedagogical Explanation:</span>
+                <span>Pedagogical Explanation:</span>
               </div>
               <p className="text-xs sm:text-sm leading-relaxed">{currentQuestion.explanation}</p>
             </div>
           )}
         </div>
 
-        {/* Footer Next Button & Keyboard Guide */}
+        {/* Footer Next Button */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 dark:border-slate-800">
           <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
             <span>Keyboard shortcuts:</span>
@@ -549,7 +518,7 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
               <h3 className="text-base font-bold text-slate-900 dark:text-white">Question Navigator</h3>
               <button
                 onClick={() => setShowDrawer(false)}
-                className="text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                className="text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 Close
               </button>
@@ -613,4 +582,4 @@ export const ActiveQuiz: React.FC<ActiveQuizProps> = ({
       )}
     </div>
   );
-};
+}

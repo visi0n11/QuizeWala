@@ -1,9 +1,7 @@
-import { UserProfile, QuizAttempt, Quiz, UserBadge } from '../types/quiz';
-
 const STORAGE_KEY_PROFILE = 'mindsprint_user_profile_v1';
 const STORAGE_KEY_CUSTOM_QUIZZES = 'mindsprint_custom_quizzes_v1';
 
-export const BADGE_DEFINITIONS: UserBadge[] = [
+export const BADGE_DEFINITIONS = [
   {
     id: 'first_step',
     title: 'First Step',
@@ -48,7 +46,7 @@ export const BADGE_DEFINITIONS: UserBadge[] = [
   },
 ];
 
-export function getStoredProfile(): UserProfile {
+export function getStoredProfile() {
   if (typeof window === 'undefined') {
     return createDefaultProfile();
   }
@@ -65,7 +63,7 @@ export function getStoredProfile(): UserProfile {
   }
 }
 
-function createDefaultProfile(): UserProfile {
+function createDefaultProfile() {
   return {
     name: 'Knowledge Seeker',
     xp: 0,
@@ -80,7 +78,7 @@ function createDefaultProfile(): UserProfile {
   };
 }
 
-export function saveProfile(profile: UserProfile): void {
+export function saveProfile(profile) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
@@ -89,9 +87,9 @@ export function saveProfile(profile: UserProfile): void {
   }
 }
 
-export function recordQuizAttempt(attempt: QuizAttempt): { updatedProfile: UserProfile; newlyEarnedBadges: string[] } {
+export function recordQuizAttempt(attempt) {
   const profile = getStoredProfile();
-  const newlyEarnedBadges: string[] = [];
+  const newlyEarnedBadges = [];
 
   // Update XP & level
   const updatedXp = profile.xp + attempt.xpEarned;
@@ -155,7 +153,7 @@ export function recordQuizAttempt(attempt: QuizAttempt): { updatedProfile: UserP
     newlyEarnedBadges.push('polymath');
   }
 
-  const updatedProfile: UserProfile = {
+  const updatedProfile = {
     ...profile,
     xp: updatedXp,
     level: updatedLevel,
@@ -169,7 +167,7 @@ export function recordQuizAttempt(attempt: QuizAttempt): { updatedProfile: UserP
   return { updatedProfile, newlyEarnedBadges };
 }
 
-export function getCustomQuizzes(): Quiz[] {
+export function getCustomQuizzes() {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY_CUSTOM_QUIZZES);
@@ -179,7 +177,7 @@ export function getCustomQuizzes(): Quiz[] {
   }
 }
 
-export function saveCustomQuiz(quiz: Quiz): void {
+export function saveCustomQuiz(quiz) {
   if (typeof window === 'undefined') return;
   try {
     const existing = getCustomQuizzes();
@@ -198,7 +196,7 @@ export function saveCustomQuiz(quiz: Quiz): void {
   }
 }
 
-export function deleteCustomQuiz(quizId: string): void {
+export function deleteCustomQuiz(quizId) {
   if (typeof window === 'undefined') return;
   try {
     const existing = getCustomQuizzes();

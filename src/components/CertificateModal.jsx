@@ -1,23 +1,14 @@
 import React, { useState } from 'react';
-import { X, Printer, Award, CheckCircle, ShieldCheck } from 'lucide-react';
-import { Quiz, QuizAttempt } from '../types/quiz';
-import { sound } from '../utils/audio';
+import { X, Printer, Award, ShieldCheck } from 'lucide-react';
+import { sound } from '../utils/audio.js';
 
-interface CertificateModalProps {
-  quiz: Quiz;
-  attempt: QuizAttempt;
-  defaultName: string;
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const CertificateModal: React.FC<CertificateModalProps> = ({
+export function CertificateModal({
   quiz,
   attempt,
   defaultName,
   isOpen,
   onClose,
-}) => {
+}) {
   const [recipientName, setRecipientName] = useState(defaultName || 'Knowledge Scholar');
 
   if (!isOpen) return null;
@@ -65,7 +56,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                 sound.playClick();
                 onClose();
               }}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -153,4 +144,4 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
       </div>
     </div>
   );
-};
+}

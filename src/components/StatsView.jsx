@@ -9,32 +9,21 @@ import {
   Sparkles,
   Compass,
   CheckCircle,
-  Clock,
   BookOpen,
-  User,
   Edit2,
   Check,
 } from 'lucide-react';
-import { UserProfile, QuizAttempt } from '../types/quiz';
-import { BADGE_DEFINITIONS, saveProfile } from '../utils/storage';
-import { sound } from '../utils/audio';
+import { BADGE_DEFINITIONS, saveProfile } from '../utils/storage.js';
+import { sound } from '../utils/audio.js';
 
-interface StatsViewProps {
-  profile: UserProfile;
-  onUpdateProfile: (updated: UserProfile) => void;
-  onSelectAttemptForReview?: (attempt: QuizAttempt) => void;
-  onStartQuiz: () => void;
-}
-
-export const StatsView: React.FC<StatsViewProps> = ({
+export function StatsView({
   profile,
   onUpdateProfile,
   onStartQuiz,
-}) => {
+}) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(profile.name);
 
-  const xpForNextLevel = profile.level * 250;
   const xpCurrentLevel = profile.xp % 250;
   const levelProgressPercent = Math.min(100, Math.round((xpCurrentLevel / 250) * 100));
 
@@ -60,7 +49,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
     setIsEditingName(false);
   };
 
-  const getBadgeIcon = (iconName: string) => {
+  const getBadgeIcon = iconName => {
     switch (iconName) {
       case 'Compass':
         return <Compass className="w-5 h-5" />;
@@ -99,7 +88,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
                   />
                   <button
                     onClick={handleSaveName}
-                    className="p-1 rounded-md bg-blue-600 text-white"
+                    className="p-1 rounded-md bg-blue-600 text-white cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                   </button>
@@ -114,7 +103,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
                       sound.playClick();
                       setIsEditingName(true);
                     }}
-                    className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                    className="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
                     title="Edit Name"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -197,14 +186,14 @@ export const StatsView: React.FC<StatsViewProps> = ({
         </div>
       </div>
 
-      {/* Badges Showcase Shelf */}
+      {/* Badges Shelf */}
       <div className="space-y-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             Knowledge Badges &amp; Trophies
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Achievements earned by mastering diverse topics, streaks, and survival runs.
+            Achievements earned by mastering JavaScript concepts, streaks, and survival runs.
           </p>
         </div>
 
@@ -248,7 +237,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
         </div>
       </div>
 
-      {/* Recent Quiz Attempts Log */}
+      {/* Attempts Log */}
       <div className="space-y-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -333,4 +322,4 @@ export const StatsView: React.FC<StatsViewProps> = ({
       </div>
     </div>
   );
-};
+}

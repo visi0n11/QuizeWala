@@ -1,6 +1,6 @@
 {
-  "name": "MindSprint Quiz Platform",
-  "description": "Interactive online quiz platform featuring multi-mode trivia challenges, speed sprints, life-based survival, custom quiz authoring, and AI-powered quiz generation.",
+  "name": "JSForge — JavaScript Online Quiz & Mastery Arena",
+  "description": "Interactive online quiz platform dedicated to JavaScript developers. Features tricky code output predictions, event loop mechanics, type coercion quirks, live code sandbox, and AI quiz generation.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

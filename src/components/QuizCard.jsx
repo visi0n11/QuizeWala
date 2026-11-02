@@ -1,17 +1,12 @@
 import React from 'react';
-import { Play, Clock, HelpCircle, Trash2, Atom, Cpu, Landmark, Globe, Palette, Zap, Sparkles } from 'lucide-react';
-import { Quiz } from '../types/quiz';
-import { sound } from '../utils/audio';
+import { Play, Clock, HelpCircle, Trash2, Atom, Cpu, Landmark, Globe, Palette, Zap, Sparkles, Code2 } from 'lucide-react';
+import { sound } from '../utils/audio.js';
 
-interface QuizCardProps {
-  quiz: Quiz;
-  onSelect: (quiz: Quiz) => void;
-  onDeleteCustom?: (quizId: string) => void;
-}
-
-export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onSelect, onDeleteCustom }) => {
-  const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
+export function QuizCard({ quiz, onSelect, onDeleteCustom }) {
+  const getCategoryIcon = category => {
+    switch ((category || '').toLowerCase()) {
+      case 'javascript':
+        return <Code2 className="w-4 h-4 text-amber-500" />;
       case 'science':
         return <Atom className="w-4 h-4 text-sky-500" />;
       case 'technology':
@@ -29,8 +24,8 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onSelect, onDeleteCust
     }
   };
 
-  const getDifficultyBadge = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
+  const getDifficultyBadge = difficulty => {
+    switch ((difficulty || '').toLowerCase()) {
       case 'easy':
         return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/50';
       case 'medium':
@@ -53,8 +48,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onSelect, onDeleteCust
             className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500"
             referrerPolicy="no-referrer"
             onError={e => {
-              // Graceful fallback to styled icon background
-              (e.currentTarget as HTMLElement).style.display = 'none';
+              e.currentTarget.style.display = 'none';
             }}
           />
         ) : (
@@ -105,7 +99,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onSelect, onDeleteCust
           </p>
         </div>
 
-        {/* Unboxed Metadata Strip (Rule §1.A) */}
+        {/* Unboxed Metadata Strip */}
         <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-1.5">
             <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
@@ -132,4 +126,4 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onSelect, onDeleteCust
       </div>
     </div>
   );
-};
+}

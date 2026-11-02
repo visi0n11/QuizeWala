@@ -1,38 +1,31 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Loader2, ArrowRight, BookOpen, AlertCircle, Check } from 'lucide-react';
-import { Quiz, Difficulty } from '../types/quiz';
-import { sound } from '../utils/audio';
+import { X, Sparkles, Loader2, ArrowRight, BookOpen, AlertCircle } from 'lucide-react';
+import { sound } from '../utils/audio.js';
 
-interface AiQuizModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onQuizGenerated: (quiz: Quiz, startImmediately: boolean) => void;
-}
-
-export const AiQuizModal: React.FC<AiQuizModalProps> = ({
+export function AiQuizModal({
   isOpen,
   onClose,
   onQuizGenerated,
-}) => {
+}) {
   const [topic, setTopic] = useState('');
   const [contextText, setContextText] = useState('');
-  const [difficulty, setDifficulty] = useState<Difficulty>('Medium');
-  const [questionCount, setQuestionCount] = useState<number>(5);
+  const [difficulty, setDifficulty] = useState('Medium');
+  const [questionCount, setQuestionCount] = useState(5);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   if (!isOpen) return null;
 
   const quickTopics = [
+    'JavaScript Asynchronous Event Loop & Promises',
+    'Modern React Hooks & Virtual DOM',
+    'JavaScript Closures & Prototypal Inheritance',
     'Quantum Computing & Superposition',
-    'Human Brain & Neuroplasticity',
     'The Roman Republic to Empire',
     'Modern Artificial Intelligence & LLMs',
-    'Deep Sea Oceanography',
-    'Renaissance Architecture & Philosophy',
   ];
 
-  const handleGenerate = async (startImmediately: boolean) => {
+  const handleGenerate = async startImmediately => {
     if (!topic.trim() && !contextText.trim()) {
       setError('Please provide a quiz topic or paste source text.');
       return;
@@ -67,7 +60,7 @@ export const AiQuizModal: React.FC<AiQuizModalProps> = ({
       sound.playFanfare();
       onQuizGenerated(data.quiz, startImmediately);
       onClose();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       setError(err.message || 'Error communicating with AI quiz service.');
     } finally {
@@ -89,7 +82,7 @@ export const AiQuizModal: React.FC<AiQuizModalProps> = ({
                 AI Quiz Generator
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Powered by Gemini 3.8 Flash · Synthesize tests on any topic or text
+                Powered by Gemini 3.8 Flash · Synthesize tests on any JavaScript or science topic
               </p>
             </div>
           </div>
@@ -98,7 +91,7 @@ export const AiQuizModal: React.FC<AiQuizModalProps> = ({
               sound.playClick();
               onClose();
             }}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -119,7 +112,7 @@ export const AiQuizModal: React.FC<AiQuizModalProps> = ({
             </label>
             <input
               type="text"
-              placeholder="e.g., Photosynthesis & Cellular Respiration"
+              placeholder="e.g., JavaScript Closures, Arrays & Prototypes"
               value={topic}
               onChange={e => setTopic(e.target.value)}
               disabled={isLoading}
@@ -127,7 +120,6 @@ export const AiQuizModal: React.FC<AiQuizModalProps> = ({
             />
           </div>
 
-          {/* Quick topic buttons */}
           <div>
             <span className="text-[11px] font-semibold text-slate-400 block mb-1.5">
               Or pick an intellectual topic:
@@ -150,7 +142,6 @@ export const AiQuizModal: React.FC<AiQuizModalProps> = ({
             </div>
           </div>
 
-          {/* Optional context text / notes paste */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
               Paste Custom Notes or Article Content (Optional):
@@ -172,7 +163,7 @@ export const AiQuizModal: React.FC<AiQuizModalProps> = ({
                 Target Difficulty:
               </label>
               <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800">
-                {(['Easy', 'Medium', 'Hard'] as Difficulty[]).map(d => (
+                {['Easy', 'Medium', 'Hard'].map(d => (
                   <button
                     key={d}
                     type="button"
@@ -274,4 +265,4 @@ export const AiQuizModal: React.FC<AiQuizModalProps> = ({
       </div>
     </div>
   );
-};
+}

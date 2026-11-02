@@ -1,16 +1,18 @@
 /**
- * High quality Web Audio synthesizer for interactive quiz sound effects.
+ * High quality Web Audio synthesizer for interactive quiz sound effects in pure JavaScript.
  * Synthesizes clicks, correct bell, wrong buzzer, combo streaks, and fanfare.
  */
 
 class SoundEffectsManager {
-  private ctx: AudioContext | null = null;
-  public enabled: boolean = true;
+  constructor() {
+    this.ctx = null;
+    this.enabled = true;
+  }
 
-  private getContext(): AudioContext | null {
+  getContext() {
     if (typeof window === 'undefined') return null;
     if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
       }
@@ -52,7 +54,6 @@ class SoundEffectsManager {
     if (!ctx) return;
 
     try {
-      // Crisp 2-tone major triad chime (C6 -> E6)
       const now = ctx.currentTime;
       [
         { freq: 1046.5, time: 0, dur: 0.12 },
@@ -83,7 +84,6 @@ class SoundEffectsManager {
     if (!ctx) return;
 
     try {
-      // Low buzz
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -105,7 +105,7 @@ class SoundEffectsManager {
     }
   }
 
-  playStreak(comboCount: number) {
+  playStreak(comboCount) {
     if (!this.enabled) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -171,10 +171,10 @@ class SoundEffectsManager {
     try {
       const now = ctx.currentTime;
       const notes = [
-        { f: 523.25, t: 0, d: 0.12 }, // C5
-        { f: 659.25, t: 0.12, d: 0.12 }, // E5
-        { f: 783.99, t: 0.24, d: 0.14 }, // G5
-        { f: 1046.5, t: 0.38, d: 0.45 }, // C6
+        { f: 523.25, t: 0, d: 0.12 },
+        { f: 659.25, t: 0.12, d: 0.12 },
+        { f: 783.99, t: 0.24, d: 0.14 },
+        { f: 1046.5, t: 0.38, d: 0.45 },
       ];
 
       notes.forEach(({ f, t, d }) => {

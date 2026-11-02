@@ -1,21 +1,8 @@
 import React from 'react';
 import { Zap, Volume2, VolumeX, Moon, Sun, Award, Plus, Sparkles } from 'lucide-react';
-import { sound } from '../utils/audio';
+import { sound } from '../utils/audio.js';
 
-interface NavbarProps {
-  currentView: 'catalog' | 'stats';
-  onNavigate: (view: 'catalog' | 'stats') => void;
-  userXp: number;
-  userLevel: number;
-  soundEnabled: boolean;
-  onToggleSound: () => void;
-  darkMode: boolean;
-  onToggleDarkMode: () => void;
-  onOpenAiModal: () => void;
-  onOpenCreateModal: () => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({
+export function Navbar({
   currentView,
   onNavigate,
   userXp,
@@ -26,7 +13,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleDarkMode,
   onOpenAiModal,
   onOpenCreateModal,
-}) => {
+}) {
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
@@ -55,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               sound.playClick();
               onNavigate('catalog');
             }}
-            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 ${
+            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer ${
               currentView === 'catalog' ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''
             }`}
           >
@@ -66,7 +53,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               sound.playClick();
               onOpenAiModal();
             }}
-            className="flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span>AI Quiz Generator</span>
@@ -76,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               sound.playClick();
               onOpenCreateModal();
             }}
-            className="flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-emerald-500" />
             <span>Create Quiz</span>
@@ -86,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               sound.playClick();
               onNavigate('stats');
             }}
-            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 ${
+            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer ${
               currentView === 'stats' ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''
             }`}
           >
@@ -102,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               sound.playClick();
               onNavigate('stats');
             }}
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             title="Your current Level and XP"
           >
             <Award className="w-3.5 h-3.5 text-amber-500" />
@@ -115,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onToggleSound}
             aria-label={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
-            className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
@@ -124,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onToggleDarkMode}
             aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
@@ -143,4 +130,4 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
     </header>
   );
-};
+}

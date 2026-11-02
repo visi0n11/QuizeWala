@@ -1,25 +1,18 @@
 import React, { useState } from 'react';
 import { X, Plus, Trash2, Download, Upload, Check, AlertCircle, Play } from 'lucide-react';
-import { Quiz, QuizQuestion, Difficulty } from '../types/quiz';
-import { sound } from '../utils/audio';
+import { sound } from '../utils/audio.js';
 
-interface QuizCreatorModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSaveQuiz: (quiz: Quiz, startImmediately: boolean) => void;
-}
-
-export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
+export function QuizCreatorModal({
   isOpen,
   onClose,
   onSaveQuiz,
-}) => {
+}) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Custom');
-  const [difficulty, setDifficulty] = useState<Difficulty>('Medium');
+  const [category, setCategory] = useState('JavaScript');
+  const [difficulty, setDifficulty] = useState('Medium');
 
-  const [questions, setQuestions] = useState<QuizQuestion[]>([
+  const [questions, setQuestions] = useState([
     {
       id: `q-custom-${Date.now()}-1`,
       question: '',
@@ -30,7 +23,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     },
   ]);
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   if (!isOpen) return null;
 
@@ -49,7 +42,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     ]);
   };
 
-  const handleRemoveQuestion = (idx: number) => {
+  const handleRemoveQuestion = idx => {
     sound.playClick();
     if (questions.length <= 1) {
       setError('A quiz must contain at least 1 question.');
@@ -58,7 +51,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     setQuestions(prev => prev.filter((_, i) => i !== idx));
   };
 
-  const updateQuestionText = (idx: number, text: string) => {
+  const updateQuestionText = (idx, text) => {
     setQuestions(prev => {
       const copy = [...prev];
       copy[idx] = { ...copy[idx], question: text };
@@ -66,7 +59,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     });
   };
 
-  const updateOptionText = (qIdx: number, optIdx: number, text: string) => {
+  const updateOptionText = (qIdx, optIdx, text) => {
     setQuestions(prev => {
       const copy = [...prev];
       const newOptions = [...copy[qIdx].options];
@@ -76,7 +69,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     });
   };
 
-  const setCorrectOptionIndex = (qIdx: number, optIdx: number) => {
+  const setCorrectOptionIndex = (qIdx, optIdx) => {
     sound.playClick();
     setQuestions(prev => {
       const copy = [...prev];
@@ -85,7 +78,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     });
   };
 
-  const updateExplanation = (qIdx: number, text: string) => {
+  const updateExplanation = (qIdx, text) => {
     setQuestions(prev => {
       const copy = [...prev];
       copy[qIdx] = { ...copy[qIdx], explanation: text };
@@ -93,7 +86,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     });
   };
 
-  const updateHint = (qIdx: number, text: string) => {
+  const updateHint = (qIdx, text) => {
     setQuestions(prev => {
       const copy = [...prev];
       copy[qIdx] = { ...copy[qIdx], hint: text };
@@ -101,7 +94,6 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     });
   };
 
-  // Export to JSON
   const handleExportJSON = () => {
     sound.playClick();
     const exportData = {
@@ -122,19 +114,18 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  // Import from JSON
-  const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportJSON = e => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = event => {
       try {
-        const parsed = JSON.parse(event.target?.result as string);
+        const parsed = JSON.parse(event.target?.result);
         if (parsed.questions && Array.isArray(parsed.questions)) {
           setTitle(parsed.title || 'Imported Quiz');
           setDescription(parsed.description || '');
-          setCategory(parsed.category || 'Imported');
+          setCategory(parsed.category || 'JavaScript');
           setDifficulty(parsed.difficulty || 'Medium');
           setQuestions(parsed.questions);
           setError(null);
@@ -149,7 +140,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     reader.readAsText(file);
   };
 
-  const validateAndSave = (startImmediately: boolean) => {
+  const validateAndSave = startImmediately => {
     if (!title.trim()) {
       setError('Quiz Title is required.');
       return;
@@ -172,7 +163,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
     setError(null);
     sound.playFanfare();
 
-    const newQuiz: Quiz = {
+    const newQuiz = {
       id: `custom-quiz-${Date.now()}`,
       title: title.trim(),
       description: description.trim() || `Custom quiz with ${questions.length} questions.`,
@@ -228,7 +219,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
                 sound.playClick();
                 onClose();
               }}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -244,7 +235,6 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
 
         {/* Scrollable Form Body */}
         <div className="flex-1 overflow-y-auto space-y-6 pr-1">
-          {/* Metadata Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -254,7 +244,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
                 type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                placeholder="e.g., Cellular Biology Fundamentals"
+                placeholder="e.g., JavaScript Closures & Event Loop"
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -267,7 +257,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
                 type="text"
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                placeholder="e.g. Science, Tech, Custom"
+                placeholder="e.g. JavaScript, Science, Tech"
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -291,7 +281,7 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
               </label>
               <select
                 value={difficulty}
-                onChange={e => setDifficulty(e.target.value as Difficulty)}
+                onChange={e => setDifficulty(e.target.value)}
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Easy">Easy</option>
@@ -337,12 +327,12 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
                 </div>
 
                 <div>
-                  <input
-                    type="text"
+                  <textarea
+                    rows={2}
                     value={q.question}
                     onChange={e => updateQuestionText(qIdx, e.target.value)}
-                    placeholder="Enter the question prompt..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 font-medium"
+                    placeholder="Enter the question prompt (code snippets supported)..."
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 font-medium resize-none"
                   />
                 </div>
 
@@ -456,4 +446,4 @@ export const QuizCreatorModal: React.FC<QuizCreatorModalProps> = ({
       </div>
     </div>
   );
-};
+}

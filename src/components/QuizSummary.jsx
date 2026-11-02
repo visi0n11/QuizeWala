@@ -12,20 +12,9 @@ import {
   FileBadge,
   Sparkles,
 } from 'lucide-react';
-import { Quiz, QuizAttempt } from '../types/quiz';
-import { sound } from '../utils/audio';
+import { sound } from '../utils/audio.js';
 
-interface QuizSummaryProps {
-  quiz: Quiz;
-  attempt: QuizAttempt;
-  newBadges: string[];
-  onPlayAgain: () => void;
-  onRetakeMissed: (missedQuestions: Quiz['questions']) => void;
-  onOpenCertificate: () => void;
-  onBackToCatalog: () => void;
-}
-
-export const QuizSummary: React.FC<QuizSummaryProps> = ({
+export function QuizSummary({
   quiz,
   attempt,
   newBadges,
@@ -33,10 +22,9 @@ export const QuizSummary: React.FC<QuizSummaryProps> = ({
   onRetakeMissed,
   onOpenCertificate,
   onBackToCatalog,
-}) => {
-  const [filter, setFilter] = useState<'all' | 'wrong'>('all');
+}) {
+  const [filter, setFilter] = useState('all');
 
-  // Trigger celebration confetti on mount
   useEffect(() => {
     if (attempt.accuracy >= 60) {
       sound.playFanfare();
@@ -52,7 +40,7 @@ export const QuizSummary: React.FC<QuizSummaryProps> = ({
     q => attempt.userAnswers[q.id] !== q.correctIndex
   );
 
-  const getTier = (accuracy: number) => {
+  const getTier = accuracy => {
     if (accuracy >= 90) return { label: 'Grandmaster', color: 'text-amber-500' };
     if (accuracy >= 70) return { label: 'Scholar', color: 'text-blue-500' };
     if (accuracy >= 50) return { label: 'Adventurer', color: 'text-emerald-500' };
@@ -60,9 +48,7 @@ export const QuizSummary: React.FC<QuizSummaryProps> = ({
   };
 
   const tier = getTier(attempt.accuracy);
-
-  const displayedQuestions =
-    filter === 'wrong' ? missedQuestions : quiz.questions;
+  const displayedQuestions = filter === 'wrong' ? missedQuestions : quiz.questions;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 sm:py-14 space-y-8 animate-fade-in">
@@ -211,7 +197,6 @@ export const QuizSummary: React.FC<QuizSummaryProps> = ({
             </p>
           </div>
 
-          {/* Interactive filter tabs */}
           <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800">
             <button
               onClick={() => {
@@ -278,7 +263,7 @@ export const QuizSummary: React.FC<QuizSummaryProps> = ({
                         <span className="text-xs font-mono font-semibold text-slate-400 block mb-1">
                           Question #{idx + 1}
                         </span>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white leading-snug whitespace-pre-line">
                           {q.question}
                         </h3>
                       </div>
@@ -348,4 +333,4 @@ export const QuizSummary: React.FC<QuizSummaryProps> = ({
       </div>
     </div>
   );
-};
+}
